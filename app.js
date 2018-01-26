@@ -6,27 +6,26 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongoClient = require('mongodb').MongoClient;
 
-var app = express();
-var voyagedb;
-
 var contentdb;
-
+var app = express();
 var upload = multer({dest: 'Uploads/'});
 
-//connect to the database
-// mongoClient.connect('mongodb://localhost:27017/voyage', function(err, db) {
-// 	if(err) throw err;
-// 	voyagedb = db;
-// });
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended : true}));
 
-//connect to the database
+// connect to the database; the database(and collection) must exist(pre-created)
+
 // mongoClient.connect('mongodb://localhost:27017/ugcontent', function(err, db) {
 // 	if(err) throw err;
 // 	contentdb = db;
 // });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended : true}));
+/*			INSTRUCTIONS 
+ * To hit the api from your localhost, go the project directory in terminal and
+ * type 'node app.js' - this will start the node server. Now to make get request
+ * to the base url(index.html), in browser type 'localhost:8000/', similarly
+ * for other types of requests 'localhost:8000/images'
+*/
 
 //the methods to handle incoming requests
 
@@ -34,41 +33,38 @@ app.get('/', function(req, res) {
 	res.sendFile('/home/anish/Documents/ExpressAPI/index.html');
 });
 
+// the index.html(ajax) will hit this url-path with tag request
 app.get('/images', function(req, res) {
 	var images = [];
 	var queryTags = req.body.tags.split(",");
+
+	// uncomment the lines below to load any image files from the filesystem, can be used for testing
+	// load any file from your filesystem, change the directory path
 	// var img1 = fs.readFileSync("/home/anish/Pictures/gatesian.jpg");
 	// var img2 = fs.readFileSync("/home/anish/Pictures/warrenwork.jpg");
 
-	for(let tag of queryTags) {
-		// get file names based on tags and send those files
-	}
+	console.log(queryTags);
 
 	res.writeHead(200, {'Content-Type': 'image/jpg'});
-	res.write(img1);
-	res.write(img2);
+	res.write(img1);	// send the 1st image
+	res.write(img2);	// send the 2nd image
 	res.end();
 });
 
-app.get('/getSites', function(req, res) {
-	voyagedb.collection('Sites').find().toArray(function(err, sitesArray) {
-		res.send(sitesArray);
-	});
-});
-
 app.post('/upload', upload.single('photo'), function(req, res) {
-	contentdb.collection('ImageData').insertOne({
-		fileName : req.file.filename,
-		originalName : req.file.originalName,
-		tags : req.body.tags.split(",")
-	});
+	// contentdb.collection('ImageData').insertOne({
+	// 	fileName : req.file.filename,
+	// 	originalName : req.file.originalName,
+	// 	tags : req.body.tags.split(",")
+	// });
+	
+	// only multipart/form-data type requests are allowed
 
+	console.log(req.file);
+	console.log(req.body);
 	res.send('image saved');
 });
 
 // when the server closes use contentdb.close();
-
-// db.inventory.find( { tags: "red" } ); tags is an array of tags - to match the documents containing the "red" tag
-// db.inventory.find( { tags: ["red", "blank"] } ); - to match the documents containg the "red" and "blank" tags
 
 app.listen(8000);
