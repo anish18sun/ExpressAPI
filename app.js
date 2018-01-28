@@ -25,7 +25,7 @@ app.get('/', function(req, res) {
 app.get('/images', function(req, res) {
 	var queryTags = req.query.tags;
 	console.log('queryTags: ' + queryTags);
-	res.writeHead(200, {'Content-Type': 'image/jpg'});
+	res.writeHead(200, {'Content-Type': 'text/html'});
 
 	elasticClient.search({
 		index: 'imageindex',
@@ -42,8 +42,7 @@ app.get('/images', function(req, res) {
 		if(response.hits) {
 			for(let doc of response.hits.hits) {
 				let imgId = doc._id;
-				let imgFile = fs.readFileSync("/home/anish/Documents/ExpressAPI/Uploads/" + imgId);
-				res.write(imgFile);
+				res.write("/home/anish/Documents/ExpressAPI/Uploads/" + imgId);
 			}
 		}
 		res.end();
