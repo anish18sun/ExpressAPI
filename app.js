@@ -25,7 +25,6 @@ app.get('/', function(req, res) {
 app.get('/images', function(req, res) {
 	var queryTags = req.query.tags;
 	console.log('queryTags: ' + queryTags);
-	res.writeHead(200, {'Content-Type': 'text/html'});
 
 	elasticClient.search({
 		index: 'imageindex',
@@ -38,14 +37,13 @@ app.get('/images', function(req, res) {
 		}
 	}, function(error, response) {
 		console.log('error: ' + error);
-
+		let imgSrc = '';
 		if(response.hits) {
 			for(let doc of response.hits.hits) {
-				let imgId = doc._id;
-				res.write("/home/anish/Documents/ExpressAPI/Uploads/" + imgId);
+				imgSrc += "/home/anish/Documents/ExpressAPI/Uploads/" + doc._id + ",";
 			}
 		}
-		res.end();
+		res.send(imgSrc);
 	});
 });
 
