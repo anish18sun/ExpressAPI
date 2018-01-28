@@ -37,13 +37,39 @@ app.get('/images', function(req, res) {
 		}
 	}, function(error, response) {
 		console.log('error: ' + error);
-		let imgSrc = '';
+		let imgSrcArr = [];
 		if(response.hits) {
 			for(let doc of response.hits.hits) {
-				imgSrc += "/home/anish/Documents/ExpressAPI/Uploads/" + doc._id + ",";
+				imgSrcArr.push("/home/anish/Documents/ExpressAPI/Uploads/" + doc._id);
 			}
 		}
-		res.send(imgSrc);
+		res.send(imgSrcArr.join());
+	});
+});
+
+app.get('/more', function(req, res) {
+	var queryTags = req.query.tags;
+	console.log('queryTags:' + queryTags);
+	
+	elasticClient.search({
+		index: 'imageindex',
+		body: {
+			query: {
+				more_like_this : {
+					fields : ["tags"],
+					like: queryTags
+				}
+			}
+		}
+	}, function(error, response) {
+		console.log('error: ' + error);
+		let imgSrcArr = [];
+		if(response.hits) {
+			for(let doc of response.hits.hits) {
+				imgSrcArr.push("/home/anish/Documents/ExpressAPI/Uploads" + doc._id);
+			}
+		}
+		res.send(imgSrcArr.join());
 	});
 });
 
