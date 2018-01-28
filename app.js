@@ -7,14 +7,16 @@ var bodyParser = require('body-parser');
 var elasticsearch = require('elasticsearch');
 
 var app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended : true}));
+app.use('/assets', express.static('assets'));
+app.use('/imageassets', express.static('Uploads'));
+
 var upload = multer({dest: 'Uploads/'});
 
 var elasticClient = new elasticsearch.Client({
 	host: 'localhost:9200'
 });
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended : true}));
 
 // the methods to handle incoming requests
 
@@ -40,7 +42,7 @@ app.get('/images', function(req, res) {
 		let imgSrcArr = [];
 		if(response.hits) {
 			for(let doc of response.hits.hits) {
-				imgSrcArr.push("/home/anish/Documents/ExpressAPI/Uploads/" + doc._id);
+				imgSrcArr.push(doc._id);
 			}
 		}
 		res.send(imgSrcArr.join());
@@ -66,7 +68,7 @@ app.get('/more', function(req, res) {
 		let imgSrcArr = [];
 		if(response.hits) {
 			for(let doc of response.hits.hits) {
-				imgSrcArr.push("/home/anish/Documents/ExpressAPI/Uploads" + doc._id);
+				imgSrcArr.push(doc._id);
 			}
 		}
 		res.send(imgSrcArr.join());
