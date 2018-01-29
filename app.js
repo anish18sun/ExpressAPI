@@ -1,6 +1,6 @@
 // file implements simple API interface for client Application
 
-const fs = require('fs');
+const cmd = require('node-cmd');
 const multer = require('multer');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -14,6 +14,7 @@ app.use('/assets', express.static('assets'));
 app.use('/imageassets', express.static('Uploads'));
 
 const upload = multer({dest: 'Uploads/'});
+const queryUpload = multer({dest: 'ImageSearch/queries'});
 
 const elasticClient = new elasticsearch.Client({
 	host: 'localhost:9200'
@@ -23,6 +24,9 @@ const gvisionClient = new vision.ImageAnnotatorClient();
 // the methods to handle incoming requests
 
 app.get('/', function(req, res) {
+	cmd.get('pwd', function(err, data, stderr) {
+		console.log('The working directory is : ' + data);
+	});
 	res.sendFile('/home/anish/Documents/ExpressAPI/index.html');
 });
 
@@ -80,7 +84,34 @@ app.get('/more', function(req, res) {
 	});
 });
 
+app.post('/imageQuery', queryUpload.single('queryPhoto'), function(req, res) {
+
+	const fileName = req.file.filename;
+	cmd.get(`
+		cd ImageSearch
+		python search.py --index index.csv --query queries/${fileName} --result-path dataset
+		`,
+		function(err, data, stderr) {
+			console.log('The error in image search: ' + err);
+			console.log('The data from image search: ' + data);
+
+			res.send(data);
+	});
+});
+
 app.post('/upload', upload.single('photo'), function(req, res) {
+
+	const fileName = req.file.filename;
+	cmd.get(`
+		cp Uploads/${fileName} ImageSearch/dataset
+		cd ImageSearch
+		python index.py --dataset dataset --index index.csv
+		`,
+	 	function(err, data, stderr) {
+	 		console.log('The error in image indexing : ' + err);
+	 		console.log('The data from image indexing : ' + data);
+	 });
+
 	elasticClient.index({
 		index: 'imageindex',
 		type: 'imagedata',

@@ -4,3 +4,6 @@ Uploads/
 ImageSearch/
 
 MyFirstProject-3c580caaf8d0.json
+
+*.pyc
+*.csv
