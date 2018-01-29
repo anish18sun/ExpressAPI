@@ -5,6 +5,7 @@ var multer = require('multer');
 var express = require('express');
 var bodyParser = require('body-parser');
 var elasticsearch = require('elasticsearch');
+const vision = require('@google-cloud/vision');
 
 var app = express();
 app.use(bodyParser.json());
@@ -17,6 +18,7 @@ var upload = multer({dest: 'Uploads/'});
 var elasticClient = new elasticsearch.Client({
 	host: 'localhost:9200'
 });
+const gvisionClient = new vision.ImageAnnotatorClient();
 
 // the methods to handle incoming requests
 
@@ -93,6 +95,19 @@ app.post('/upload', upload.single('photo'), function(req, res) {
 	console.log(req.file);
 	console.log(req.body);
 	res.send('image saved');
+});
+
+app.get('/check', function(req, res) {
+	gvisionClient.labelDetection("/home/anish/Pictures/gatesian.jpg")
+		.then(results => {
+			const labels = results[0].labelAnnotations;
+
+			console.log('Labels: ');
+			labels.forEach(label => console.log(label.description + ", "));
+		})
+		.catch(err => {
+			console.log('error: ' + err);
+		});
 });
 
 app.listen(8000);

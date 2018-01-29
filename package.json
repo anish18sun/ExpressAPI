@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/anish18sun/ExpressAPI#readme",
   "dependencies": {
+    "@google-cloud/vision": "^0.14.0",
     "body-parser": "^1.18.2",
     "elasticsearch": "^14.0.0",
     "express": "^4.16.2",
