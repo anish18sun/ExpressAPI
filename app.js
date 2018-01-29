@@ -1,21 +1,21 @@
-//this file implements simple API interface for client Application
+// file implements simple API interface for client Application
 
-var fs = require('fs');
-var multer = require('multer');
-var express = require('express');
-var bodyParser = require('body-parser');
-var elasticsearch = require('elasticsearch');
+const fs = require('fs');
+const multer = require('multer');
+const express = require('express');
+const bodyParser = require('body-parser');
+const elasticsearch = require('elasticsearch');
 const vision = require('@google-cloud/vision');
 
-var app = express();
+const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
 app.use('/assets', express.static('assets'));
 app.use('/imageassets', express.static('Uploads'));
 
-var upload = multer({dest: 'Uploads/'});
+const upload = multer({dest: 'Uploads/'});
 
-var elasticClient = new elasticsearch.Client({
+const elasticClient = new elasticsearch.Client({
 	host: 'localhost:9200'
 });
 const gvisionClient = new vision.ImageAnnotatorClient();
@@ -27,7 +27,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/images', function(req, res) {
-	var queryTags = req.query.tags;
+	const queryTags = req.query.tags;
 	console.log('queryTags: ' + queryTags);
 
 	elasticClient.search({
@@ -41,7 +41,7 @@ app.get('/images', function(req, res) {
 		}
 	}, function(error, response) {
 		console.log('error: ' + error);
-		let imgSrcArr = [];
+		const imgSrcArr = [];
 		if(response.hits) {
 			for(let doc of response.hits.hits) {
 				imgSrcArr.push(doc._id);
@@ -52,7 +52,7 @@ app.get('/images', function(req, res) {
 });
 
 app.get('/more', function(req, res) {
-	var queryTags = req.query.tags;
+	const queryTags = req.query.tags;
 	console.log('queryTags:' + queryTags);
 	
 	elasticClient.search({
@@ -67,13 +67,16 @@ app.get('/more', function(req, res) {
 		}
 	}, function(error, response) {
 		console.log('error: ' + error);
-		let imgSrcArr = [];
-		if(response.hits) {
+		const imgSrcArr = [];
+		if(response.hits.hits.length > 0) {
 			for(let doc of response.hits.hits) {
 				imgSrcArr.push(doc._id);
 			}
+			res.send(imgSrcArr.join());
+		} else {
+			// please put image file 'nosugg.jpg' in Uploads folder
+			res.send("nosugg.jpg");		
 		}
-		res.send(imgSrcArr.join());
 	});
 });
 
@@ -97,17 +100,36 @@ app.post('/upload', upload.single('photo'), function(req, res) {
 	res.send('image saved');
 });
 
-app.get('/check', function(req, res) {
-	gvisionClient.labelDetection("/home/anish/Pictures/gatesian.jpg")
+app.post('/uploadTagged', upload.single('photo'), function(req, res) {
+	const gTagsArr = [];
+	const fileName = req.file.filename;
+	gvisionClient.labelDetection("/home/anish/Documents/ExpressAPI/Uploads/" + fileName)
 		.then(results => {
 			const labels = results[0].labelAnnotations;
+			labels.forEach(label => gTagsArr.push(label.description));
 
-			console.log('Labels: ');
-			labels.forEach(label => console.log(label.description + ", "));
+			elasticClient.index({
+				index: 'imageindex',
+				type: 'imagedata',
+				id: fileName,
+				body: {
+					name: req.file.originalname,
+					tags: req.body.tags + " " + gTagsArr.join(" ")
+				}
+			}, function(error, response) {
+				if(error) {
+					console.log('error:' + error);
+				}
+				console.log('image tags(ES scope): ' + gTagsArr.join(","));
+			});
 		})
 		.catch(err => {
 			console.log('error: ' + err);
 		});
+
+	console.log(req.file);
+	console.log(req.body);
+	res.send('image saved');
 });
 
 app.listen(8000);
