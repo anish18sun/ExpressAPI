@@ -74,8 +74,7 @@ $.ajax({
           "tags":joined
         },
         success : function(result) {
-            
-            
+            alert("bye");
             //console.log(result);
         document.getElementById('mycontent').style.display = 'none';
 
@@ -139,7 +138,48 @@ var res = search.split(",");
 
    
    
+$('input[type=file]').on('change',function(e1) {
+    alert("1");
+     var file = this.files[0];
 
+    $("#searchbyimage").on('click',function(e)
+{
+    
+
+    
+
+        alert("2");
+       
+        var formdata = new FormData();
+        formdata.append("queryPhoto",file);
+        console.log(file);
+        $.ajax({
+    url: "http://localhost:8000/imageQuery",
+    method: "POST",
+   
+
+    
+     processData: false,
+    contentType: false,
+    data:formdata, 
+
+   
+
+    success: function (res) {
+     alert("hello");
+      
+    },
+    error: function (e) {
+                        console.log(e);
+
+                    },
+
+  });
+
+   });
+
+
+});
     });
 </script>
 
@@ -169,18 +209,18 @@ var res = search.split(",");
 
     
       <input type="text" id ="mysearch" placeholder="What are you looking for?">
-
+  </form>
       
       <button id="first" style="background: #C0D9D9;color: black;font-weight: normal;float: left;margin-top: 5px;">
        Search
      </button>
     
    
-           <button id ="more" disabled="disabled" style="background: #C0D9D9;color: black;font-weight: normal;float: left;margin-left:10px;margin-top:5px;">More Similar Image </button>  
-           </form>           
- 
-
-</disv>
+           <button id ="more" disabled="disabled" style="background: #C0D9D9;color: black;font-weight: normal;float: left;margin-left:10px;margin-top:5px;">More Similar Image </button>             
+ <input type="file" name="images1" id="images1" style="float: left;margin-left:10px;margin-top:5px;"/>
+   
+   <button id="searchbyimage" style="background: #C0D9D9;color: black;font-weight: normal;float: left;margin-left:10px;margin-top:5px;">search by image</button>
+</div>
                 
                     
                     <ul class="nav navbar-nav navbar-right navbar-menu-items wow fadeIn">
