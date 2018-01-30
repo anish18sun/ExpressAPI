@@ -24,9 +24,6 @@ const gvisionClient = new vision.ImageAnnotatorClient();
 // the methods to handle incoming requests
 
 app.get('/', function(req, res) {
-	cmd.get('pwd', function(err, data, stderr) {
-		console.log('The working directory is : ' + data);
-	});
 	res.sendFile('/home/anish/Documents/ExpressAPI/index.html');
 });
 
@@ -89,7 +86,7 @@ app.post('/imageQuery', queryUpload.single('queryPhoto'), function(req, res) {
 	const fileName = req.file.filename;
 	cmd.get(`
 		cd ImageSearch
-		python search.py --index index.csv --query queries/${fileName} --result-path dataset
+		python search.py --index index.csv --query queries/${fileName} --result-path ../Uploads
 		`,
 		function(err, data, stderr) {
 			console.log('The error in image search: ' + err);
@@ -103,9 +100,8 @@ app.post('/upload', upload.single('photo'), function(req, res) {
 
 	const fileName = req.file.filename;
 	cmd.get(`
-		cp Uploads/${fileName} ImageSearch/dataset
 		cd ImageSearch
-		python index.py --dataset dataset --index index.csv
+		python index.py --dataset ../Uploads --index index.csv
 		`,
 	 	function(err, data, stderr) {
 	 		console.log('The error in image indexing : ' + err);
@@ -132,6 +128,15 @@ app.post('/upload', upload.single('photo'), function(req, res) {
 });
 
 app.post('/uploadTagged', upload.single('photo'), function(req, res) {
+	cmd.get(`
+		cd ImageSearch
+		python index.py --dataset ../Uploads --index index.csv
+		`,
+	 	function(err, data, stderr) {
+	 		console.log('The error in image indexing : ' + err);
+	 		console.log('The data from image indexing : ' + data);
+	 });
+
 	const gTagsArr = [];
 	const fileName = req.file.filename;
 	gvisionClient.labelDetection("/home/anish/Documents/ExpressAPI/Uploads/" + fileName)
