@@ -92,7 +92,17 @@ app.post('/imageQuery', queryUpload.single('queryPhoto'), function(req, res) {
 			console.log('The error in image search: ' + err);
 			console.log('The data from image search: ' + data);
 
-			res.send(data);
+			var srcArr = data.split(",");
+
+			res.send(`
+				<html>
+					<h3>Server sent hi! ${srcArr[0]}</h3>
+					<img src="http://localhost:8000/imageassets/${srcArr[0]}" />
+					<img src="http://localhost:8000/imageassets/${srcArr[1]}" />
+					<img src="http://localhost:8000/imageassets/${srcArr[2]}" />
+					<img src="http://localhost:8000/imageassets/${srcArr[3]}" />
+				</html>
+			`);
 	});
 });
 
