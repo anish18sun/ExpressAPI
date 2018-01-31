@@ -70,7 +70,7 @@ app.get('/more', function(req, res) {
 	const fileId = req.query.fileid;
 	cmd.get(`
 		cd ImageSearch
-		python search.py --index index.csv --query ../Uploads/${fileid} --result-path ../Uploads
+		python search.py --index index.csv --query ../Uploads/${fileId} --result-path ../Uploads
 		`,
 		function(err, data, stderr) {
 			res.send(data);

@@ -43,6 +43,11 @@
         function createCard(data) {
                 var imageUrl = 'http://localhost:8000/imageassets/'+data;
                 var cardTemplate = $("#templates").find(".box").clone();
+                var test = data.split(".");
+                if(test[1]=="gif")
+                {
+                    cardTemplate.find(".testing").attr("disabled","disabled").css("cursor","not-allowed");
+                }
                 
                 
                 cardTemplate.find("img").attr("src", imageUrl);
@@ -74,7 +79,8 @@ $.ajax({
           "tags":joined
         },
         success : function(result) {
-            alert("bye");
+            
+            
             //console.log(result);
         document.getElementById('mycontent').style.display = 'none';
 
@@ -90,7 +96,8 @@ $.ajax({
      }
 
 
-$("#more").removeAttr("disabled");
+
+
      
 
     },
@@ -101,85 +108,52 @@ $("#more").removeAttr("disabled");
                     }
       });
 });
-$('#more').on('click',function (e) {
-    e.preventDefault();
-    var search = $("#mysearch").val();
-var res = search.split(",");
-    var joined =res.join(" ");
-     $("#grid").html("");
+
+
+$(document).on("click", ".testing", function(e){
+    
+    var url = $(this).next().attr("src");
+    var imageindex = url.indexOf("imageassets");
+    var lengthofimage= "imageassets".length;
+    var startindex= imageindex+lengthofimage;
+    var finalstr= url.substring(startindex+1,url.length);
+    console.log(finalstr);
+    $("#grid").html("");
+    $(".search-button").html("");
+
+
 
     $.ajax({
-                    dataType: 'text',
-                    url: "http://localhost:8000/more",
-                    method: "GET",
-                    contentType: 'text/html',
-                    data :{
-                        "tags":joined
-                    },
-                    success: function (data) {
-                        
-                         var src1= data.split(",");
-                         console.log(src1);
+    dataType:'text',
+
+        url:'http://localhost:8000/more',
+        method:'GET',
+         contentType:'text/html',
+        data : finalstr,
+        success : function(result) {
+            alert("bye");
+            //console.log(result);
+        document.getElementById('mycontent').style.display = 'none';
+        var src1= result.split(",");
          for (var i = 0, j = src1.length; i < j; i++){
 
             createCard(src1[i]);    
-         // $('#gallery-overlay').append('<div class ="item"><img src=http://localhost:8000/imageassets/'+src1[i]+'/></div>');
-     }
-                    },
-                    error: function (e) {
-                        console.log(e);
+        
 
-                    },
-                    complete: function(){
+     }
+ },
+     error: function (e) {
+                      console.log(e);
+                      alert(e);
 
                     }
-                });
-});
+      });
 
-   
-   
-$('input[type=file]').on('change',function(e1) {
-    alert("1");
-     var file = this.files[0];
 
-    $("#searchbyimage").on('click',function(e)
-{
-    
-
-    
-
-        alert("2");
-       
-        var formdata = new FormData();
-        formdata.append("queryPhoto",file);
-        console.log(file);
-        $.ajax({
-    url: "http://localhost:8000/imageQuery",
-    method: "POST",
-   
-
-    
-     processData: false,
-    contentType: false,
-    data:formdata, 
-
-   
-
-    success: function (res) {
-     alert("hello");
-      
-    },
-    error: function (e) {
-                        console.log(e);
-
-                    },
-
-  });
-
-   });
 
 
 });
+
     });
 </script>
 
@@ -203,25 +177,27 @@ $('input[type=file]').on('change',function(e1) {
                     <ul class="nav navbar-nav navbar-right navbar-search-button">
                         <li><a class="search-button" href="#"><i class="fa fa-search"></i></a></li>
                     </ul>
-                    <form  id="myform" class="navbar-form navbar-search-form disabled wow fadeInLeft" role="form" method="post" enctype="multipart/form-data" >
+                    <form id="myform" class="navbar-form navbar-search-form disabled wow fadeInLeft" role="form" action="" method="get">
 
                         <div class="search">
 
     
       <input type="text" id ="mysearch" placeholder="What are you looking for?">
-  </form>
       
-      <button id="first" style="background: #C0D9D9;color: black;font-weight: normal;float: left;margin-top: 5px;">
+      <button id="first" style="background: #C0D9D9;color: black;font-weight: normal;float: left;margin-top: 5px;border-radius: 10px;">
        Search
      </button>
     
    
-           <button id ="more" disabled="disabled" style="background: #C0D9D9;color: black;font-weight: normal;float: left;margin-left:10px;margin-top:5px;">More Similar Image </button>             
- <input type="file" name="images1" id="images1" style="float: left;margin-left:10px;margin-top:5px;"/>
+          
+
+ 
+
    
-   <button id="searchbyimage" style="background: #C0D9D9;color: black;font-weight: normal;float: left;margin-left:10px;margin-top:5px;">search by image</button>
+   
+
 </div>
-                
+                    </form>
                     
                     <ul class="nav navbar-nav navbar-right navbar-menu-items wow fadeIn">
                         <li><a href="#">Home</a></li>
@@ -241,7 +217,7 @@ $('input[type=file]').on('change',function(e1) {
             
 <div class="box">
            
-
+<button class ="testing" width="50%" style="float: right;background: #C0D9D9;color: black;font-weight: normal;border-radius: 10px;">More like this!</button>
                 <img class="img-responsive" />
             
 
@@ -271,10 +247,10 @@ $('input[type=file]').on('change',function(e1) {
                 
                 <div class="row">
                     <div class="col-sm-12 text wow fadeInLeft">
-                        <h1>Image <strong>Search</strong> WebApp</h1>
+                        <h1><strong>Apache Corbius 2.0</strong></h1>
                         <div class="description">
                             <p class="medium-paragraph">
-                            Click on the search bar to search images and enjoy!
+                            Click on the search bar to search images and gifs!
                             </p>
                         </div>
                     </div>
@@ -301,7 +277,7 @@ $('input[type=file]').on('change',function(e1) {
                             <div class="col-sm-12">
                                 <h3>Image Searching</h3>
                                 <p>
-                                    Search images on the sever by using any tag!
+                                    Search images and gifs on the sever by using any tag!
                                 </p>
                             </div>
                         
