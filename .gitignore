@@ -2,6 +2,9 @@ node_modules/
 assets/
 Uploads/
 
+ImageSearch/queries/
+ImageSearch/dataset/
+
 MyFirstProject-3c580caaf8d0.json
 
 *.pyc
