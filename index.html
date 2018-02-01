@@ -80,7 +80,7 @@ $.ajax({
         },
         success : function(result) {
             
-            
+
             //console.log(result);
         document.getElementById('mycontent').style.display = 'none';
 
@@ -117,7 +117,7 @@ $(document).on("click", ".testing", function(e){
     var lengthofimage= "imageassets".length;
     var startindex= imageindex+lengthofimage;
     var finalstr= url.substring(startindex+1,url.length);
-    console.log(finalstr);
+    //console.log(finalstr);
     $("#grid").html("");
     $(".search-button").html("");
 
@@ -129,13 +129,19 @@ $(document).on("click", ".testing", function(e){
         url:'http://localhost:8000/more',
         method:'GET',
          contentType:'text/html',
-        data : finalstr,
+        data : {
+            'fileid':finalstr
+        },
         success : function(result) {
-            alert("bye");
-            //console.log(result);
+           
+
+            console.log("success: "+result);
         document.getElementById('mycontent').style.display = 'none';
         var src1= result.split(",");
+        //console.log(src1[0]);
+
          for (var i = 0, j = src1.length; i < j; i++){
+           // console.log(src1[i]);
 
             createCard(src1[i]);    
         
@@ -247,10 +253,10 @@ $(document).on("click", ".testing", function(e){
                 
                 <div class="row">
                     <div class="col-sm-12 text wow fadeInLeft">
-                        <h1><strong>Apache Corbius 2.0</strong></h1>
+                        <h1><strong>Apache Corbis</strong></h1>
                         <div class="description">
                             <p class="medium-paragraph">
-                            Click on the search bar to search images and gifs!
+                            Open Image Service
                             </p>
                         </div>
                     </div>
